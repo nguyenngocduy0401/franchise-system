@@ -39,8 +39,10 @@ namespace FranchiseProject.Infrastructures.Repositories
         public async Task<List<Notification>> GetNotificationsByUserIdAsync(string userId)
         {
             return await _dbContext.Notifications
-                .Where(n => n.ReceiverId == userId)
-                .ToListAsync();
+        .Where(n => n.ReceiverId == userId)  
+        .OrderBy(n => n.IsRead) 
+        .ThenByDescending(n => n.CreationDate)  
+        .ToListAsync();
         }
         public async Task SendNotificationsAsync(List<string> userIds, string message, string senderId)
         {

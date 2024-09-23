@@ -23,6 +23,7 @@ namespace FranchiseProject.Application.Services
         private readonly IValidator<CreateAgencyViewModel> _validator;
         private readonly IMapper _mapper;
 
+
       
         public AgencyService(IMapper mapper,IUnitOfWork unitOfWork, IClaimsService claimsService,IValidator<CreateAgencyViewModel>  validator)
         {

@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using FranchiseProject.Application.Commons;
+using FranchiseProject.Application.Hubs;
 using FranchiseProject.Application.Interfaces;
 using FranchiseProject.Application.Repositories;
 using FranchiseProject.Application.ViewModels.EmailViewModels;
 using FranchiseProject.Application.ViewModels.NotificationViewModel;
 using FranchiseProject.Domain.Entity;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -19,11 +21,13 @@ namespace FranchiseProject.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IClaimsService _claimsService;
         private readonly IMapper _mapper;
-        public NotificationService(IUnitOfWork unitOfWork, IClaimsService claimsService,IMapper mapper)
+        private readonly IHubContext<NotificationHub> _hubContext;
+        public NotificationService(IUnitOfWork unitOfWork, IClaimsService claimsService,IMapper mapper,IHubContext<NotificationHub> hubContext)
         {
             _unitOfWork = unitOfWork;
             _claimsService = claimsService;
             _mapper = mapper;
+            _hubContext = hubContext;
         }
 
    
@@ -33,8 +37,33 @@ namespace FranchiseProject.Application.Services
             var response = new ApiResponse<bool>();
             try
             {
-                var senderId = _claimsService.GetCurrentUserId.ToString();
-                await _unitOfWork.NotificationRepository.SendNotificationsAsync(sendNotificationViewModel.userIds, sendNotificationViewModel.message, senderId);
+                if (sendNotificationViewModel.userIds == null || sendNotificationViewModel.userIds.Count == 0 || string.IsNullOrEmpty(sendNotificationViewModel.message))
+                {
+                    response.Data = true;
+                    response.isSuccess = false;
+                    response.Message = "Danh sách user hoặc message không hợp lệ.";
+                    return response;
+                }
+                var notifications = new List<Notification>();
+                foreach (var userId in sendNotificationViewModel.userIds)
+                {
+                    var notification = new Notification
+                    {
+                        SenderId = _claimsService.GetCurrentUserId.ToString(), 
+                        ReceiverId = userId,
+                        Message = sendNotificationViewModel.message,
+                        CreationDate = DateTime.UtcNow,
+                        IsRead = false
+                    };
+                    notifications.Add(notification);
+                }
+                await _unitOfWork.NotificationRepository.AddRangeAsync(notifications);
+                await _unitOfWork.SaveChangeAsync();
+                foreach (var userId in sendNotificationViewModel.userIds)
+                {
+                                   await _hubContext.Clients.User(userId).SendAsync("ReceiveNotification", sendNotificationViewModel.message);
+                }
+
                 response.Data = true;
                 response.isSuccess = true;
                 response.Message = "Gửi thông báo Thành Công !";
