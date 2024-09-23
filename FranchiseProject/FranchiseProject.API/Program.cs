@@ -1,6 +1,7 @@
 using FranchiseProject.API;
 using FranchiseProject.API.Middlewares;
 using FranchiseProject.Application.Commons;
+using FranchiseProject.Application.Hubs;
 using FranchiseProject.Infrastructures;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
@@ -16,6 +17,7 @@ builder.Services.AddWebAPIService();
 builder.Services.AddAuthenticationServices(configuration);
 builder.Services.AddStackExchangeRedisCache(options => options.Configuration = configuration.RedisConfiguration);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddSignalR();
 builder.Services.AddSingleton(configuration);
 var app = builder.Build();
 
@@ -32,7 +34,7 @@ app.UseCors("CorsPolicy");
 app.UseHttpsRedirection();
 /*app.UseMiddleware<PerformanceMiddleware>();*/
 /*app.UseMiddleware<RedisAuthenticationMiddleware>();*/
-
+app.MapHub<NotificationHub>("/notificationHub");
 app.UseAuthorization();
 
 app.MapControllers();
