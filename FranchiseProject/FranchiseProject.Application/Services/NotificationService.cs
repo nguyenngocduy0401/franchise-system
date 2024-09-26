@@ -61,7 +61,10 @@ namespace FranchiseProject.Application.Services
                 await _unitOfWork.SaveChangeAsync();
                 foreach (var userId in sendNotificationViewModel.userIds)
                 {
-                                   await _hubContext.Clients.User(userId).SendAsync("ReceiveNotification", sendNotificationViewModel.message);
+                    var unreadCount = await _unitOfWork.NotificationRepository.GetUnreadNotificationCountByUserIdAsync(userId);
+                    await _hubContext.Clients.User(userId).SendAsync("ReceiveNotification", sendNotificationViewModel.message);
+
+                    await _hubContext.Clients.User(userId).SendAsync("UpdateUnreadNotificationCount", unreadCount);
                 }
 
                 response.Data = true;
@@ -88,7 +91,8 @@ namespace FranchiseProject.Application.Services
             {
                 var userId = _claimsService.GetCurrentUserId.ToString();
                 var count = await _unitOfWork.NotificationRepository.GetUnreadNotificationCountByUserIdAsync(userId);
-               
+                var unreadCount = await _unitOfWork.NotificationRepository.GetUnreadNotificationCountByUserIdAsync(userId);
+                await _hubContext.Clients.User(userId).SendAsync("UpdateUnreadNotificationCount", unreadCount);
                 response.Data = count;
                 response.isSuccess = true;
                 response.Message = "Truy xuất số thông báo chưa đọc thành công !";
@@ -112,6 +116,11 @@ namespace FranchiseProject.Application.Services
             try
             {
                 var id = Guid.Parse(notificationId);
+                var userId = _claimsService.GetCurrentUserId.ToString();
+
+                // Cập nhật số lượng thông báo chưa đọc cho người dùng thông qua SignalR
+                var unreadCount = await _unitOfWork.NotificationRepository.GetUnreadNotificationCountByUserIdAsync(userId);
+                await _hubContext.Clients.User(userId).SendAsync("UpdateUnreadCount", unreadCount);
                 await _unitOfWork.NotificationRepository.MarkNotificationAsReadAsync(id);
                 response.Data = true;
                 response.isSuccess = true;
