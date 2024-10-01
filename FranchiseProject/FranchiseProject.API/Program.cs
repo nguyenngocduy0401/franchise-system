@@ -1,4 +1,4 @@
-using FranchiseProject.API;
+﻿using FranchiseProject.API;
 using FranchiseProject.API.Middlewares;
 using FranchiseProject.Application.Commons;
 using FranchiseProject.Application.Hubs;
@@ -16,9 +16,23 @@ builder.Services.AddInfrastructuresService(configuration.DatabaseConnection);
 builder.Services.AddWebAPIService();
 builder.Services.AddAuthenticationServices(configuration);
 builder.Services.AddStackExchangeRedisCache(options => options.Configuration = configuration.RedisConfiguration);
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+// Define the CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin", builder =>
+    {
+        builder.WithOrigins("http://localhost:5173") // Thay bằng URL của frontend
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials();
+    });
+});
+
+// Add SignalR
 builder.Services.AddSignalR();
 builder.Services.AddSingleton(configuration);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -28,15 +42,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseSwagger();
-app.UseSwaggerUI();
-app.UseCors("CorsPolicy");
 app.UseHttpsRedirection();
-/*app.UseMiddleware<PerformanceMiddleware>();*/
-/*app.UseMiddleware<RedisAuthenticationMiddleware>();*/
-app.MapHub<NotificationHub>("/notificationHub");
+
+// Apply the CORS policy
+app.UseCors("AllowSpecificOrigin");
+
+// Use authentication and authorization
+app.UseAuthentication();
 app.UseAuthorization();
 
+// Map SignalR hub
+app.MapHub<NotificationHub>("/notificationHub").RequireCors("AllowSpecificOrigin");
+
+// Map controllers
 app.MapControllers();
 
 app.Run();

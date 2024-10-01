@@ -20,7 +20,7 @@ namespace FranchiseProject.Application.Hubs
 
         public async Task SendNotification(string userId, string message)
         {
-            await Clients.User(userId).SendAsync("ReceiveNotification", message);
+            await Clients.User(userId).SendAsync("ReceivedNotification", message);
         }
 
         public async Task UpdateUnreadNotificationCount(string userId, int unreadCount)

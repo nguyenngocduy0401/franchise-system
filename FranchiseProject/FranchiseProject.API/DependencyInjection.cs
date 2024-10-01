@@ -61,7 +61,7 @@ namespace FranchiseProject.API
                 });
             });
             
-            services.AddCors(options =>
+            /*services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", builder =>
                 {
@@ -71,7 +71,7 @@ namespace FranchiseProject.API
                         .AllowAnyHeader();
                 });
             });
-
+*/
             
             services.AddScoped<IClaimsService, ClaimsService>();
             services.AddScoped<IPdfService, PdfService>();

@@ -61,9 +61,11 @@ namespace FranchiseProject.Application.Services
                 await _unitOfWork.SaveChangeAsync();
                 foreach (var userId in sendNotificationViewModel.userIds)
                 {
-                    var unreadCount = await _unitOfWork.NotificationRepository.GetUnreadNotificationCountByUserIdAsync(userId);
-                    await _hubContext.Clients.User(userId).SendAsync("ReceiveNotification", sendNotificationViewModel.message);
-
+                     var unreadCount = await _unitOfWork.NotificationRepository.GetUnreadNotificationCountByUserIdAsync(userId);
+                    // Gửi thông báo đến client
+                    await _hubContext.Clients.User(userId).SendAsync("ReceivedNotification", "");
+                    
+                    // Gửi số lượng thông báo chưa đọc đến client
                     await _hubContext.Clients.User(userId).SendAsync("UpdateUnreadNotificationCount", unreadCount);
                 }
 
