@@ -25,7 +25,7 @@ namespace FranchiseProject.API.Controllers
 
         [SwaggerOperation(Summary = "Admin tạo và gửi thông báo đến người dùng{Authorize= Manager,Admin,FranchiseManager,Instructor}")]
         [HttpPost("")]
-        [Authorize(Roles = AppRole.Admin + "," + AppRole.Manager + "," + AppRole.Intructor )] 
+        [Authorize(Roles = AppRole.Admin + "," + AppRole.Manager  )] 
         public async Task<ApiResponse<bool>> CreateAndSendNotificationAsync([FromBody] SendNotificationViewModel model)
         {
             return await _notificationService.CreateAndSendNotificationAsync(model);
