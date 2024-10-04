@@ -49,7 +49,7 @@ namespace FranchiseProject.Infrastructures.Mappers
             CreateMap<Notification, NotificationViewModel>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message)).ReverseMap();
-           
+            #endregion
             #region ClassSchedule
             CreateMap<ClassSchedule, ClassScheduleViewModel>()
               .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.Class.Name))
