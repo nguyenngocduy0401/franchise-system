@@ -1,14 +1,29 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using System;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 namespace FranchiseProject.Application.Hubs
 {
     public class NotificationHub : Hub
     {
+        private static readonly ConcurrentDictionary<string, string> UserConnections = new ConcurrentDictionary<string, string>();
+
         public override async Task OnConnectedAsync()
         {
-            Console.WriteLine($"Client connected: {Context.ConnectionId}");
+            var userId = Context.UserIdentifier;  // Lấy UserId từ Context.UserIdentifier, được thiết lập bởi CustomUserIdProvider
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                // Lưu trữ ConnectionId với UserId
+                UserConnections[userId] = Context.ConnectionId;
+                Console.WriteLine($"User {userId} connected with Connection ID: {Context.ConnectionId}");
+            }
+            else
+            {
+                Console.WriteLine($"UserIdentifier is null or empty for Connection ID: {Context.ConnectionId}");
+            }
+
             await base.OnConnectedAsync();
         }
 
