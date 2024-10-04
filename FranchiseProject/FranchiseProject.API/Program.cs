@@ -43,6 +43,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseMiddleware<PerformanceMiddleware>();
+/*app.UseMiddleware<RedisAuthenticationMiddleware>();*/
 
 // Apply the CORS policy
 app.UseCors("AllowSpecificOrigin");

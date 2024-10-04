@@ -54,8 +54,8 @@ namespace FranchiseProject.Application.Services
                     userLoginModel.UserName, userLoginModel.Password, false, false);
                 if (result.Succeeded)
                 {
-                    var user = await _unitOfWork.UserRepository.GetUserByUserNameAndPassword
-                        (userLoginModel.UserName, userLoginModel.Password);
+                    var user = await _unitOfWork.UserRepository.GetUserByUserName
+                        (userLoginModel.UserName);
                     if (user.ContractId != Guid.Empty && user.ContractId != null) 
                     {
                         var checkExpire = await _unitOfWork.ContractRepository.IsExpiringContract((Guid)user.ContractId);
@@ -90,7 +90,7 @@ namespace FranchiseProject.Application.Services
                         ExpiredAt = DateTime.UtcNow.AddMonths(1)
                     };
                     _unitOfWork.RefreshTokenRepository.UpdateRefreshToken(refreshTokenEntity);
-                    /*var storeRedis = await _redisService.StoreJwtTokenAsync(user.UserName, token.AccessToken);*/
+                    var storeRedis = await _redisService.StoreJwtTokenAsync(user.UserName, token.AccessToken);
                     var userLoginViewModel = new UserLoginViewModel
                     {
                         RefreshTokenModel = token,
@@ -121,7 +121,6 @@ namespace FranchiseProject.Application.Services
             }
             return response;
         }
-
         public async Task<ApiResponse<RefreshTokenModel>> RenewTokenAsync(RefreshTokenModel refreshTokenModel)
         {
             var response = new ApiResponse<RefreshTokenModel>();
@@ -229,7 +228,7 @@ namespace FranchiseProject.Application.Services
                     ExpiredAt = DateTime.UtcNow.AddMonths(1)
                 };
                 _unitOfWork.RefreshTokenRepository.UpdateRefreshToken(refreshTokenEntity);
-                /*var storeRedis = await _redisService.StoreJwtTokenAsync(user.UserName, token.AccessToken);*/
+                var storeRedis = await _redisService.StoreJwtTokenAsync(user.UserName, token.AccessToken);
                 var isSuccess = await _unitOfWork.SaveChangeAsync() > 0;
 
                 if (!isSuccess)
@@ -272,7 +271,7 @@ namespace FranchiseProject.Application.Services
                 storedToken.IsUsed = true;
                 _unitOfWork.RefreshTokenRepository.UpdateRefreshToken(storedToken);
                 var user = await _userManager.FindByIdAsync(storedToken.UserId);
-                /*await _redisService.RemoveUserIfExistsAsync(user.UserName);*/
+                await _redisService.RemoveUserIfExistsAsync(user.UserName);
                 await _unitOfWork.SaveChangeAsync();
                 response.isSuccess = true;
                 response.Message = "Đăng xuất thành công!";
@@ -286,7 +285,7 @@ namespace FranchiseProject.Application.Services
             }
             return response;
         }
-        public async Task<ApiResponse<bool>> ResetPasswordAsync(string userName, UserResetPasswordModel userResetPasswordModel)
+        public async Task<ApiResponse<bool>> ResetPasswordAsync(UserResetPasswordModel userResetPasswordModel)
         {
             var response = new ApiResponse<bool>();
             try
@@ -298,14 +297,8 @@ namespace FranchiseProject.Application.Services
                     response.Message = string.Join(", ", validationResult.Errors.Select(error => error.ErrorMessage));
                     return response;
                 }
-                if (string.IsNullOrEmpty(userName))
-                {
-                    response.Data = false;
-                    response.isSuccess = true;
-                    response.Message = "Username không được bỏ trống!";
-                    return response;
-                }
-                var user = await _userManager.FindByNameAsync(userName);
+                if (userResetPasswordModel.UserName == null) throw new Exception("User must not empty!");
+                    var user = await _userManager.FindByNameAsync(userResetPasswordModel.UserName);
                 if (user == null)
                 {
                     response.Data = false;
@@ -356,5 +349,6 @@ namespace FranchiseProject.Application.Services
             }
             return response;
         }
+        
     }
 }

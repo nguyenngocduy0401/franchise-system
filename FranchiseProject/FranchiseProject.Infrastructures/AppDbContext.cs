@@ -1,5 +1,7 @@
 ﻿using FranchiseProject.Domain.Entity;
+using FranchiseProject.Domain.Enums;
 using FranchiseProject.Infrastructures.FluentAPIs;
+using iText.StyledXmlParser.Jsoup.Parser;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -137,6 +139,13 @@ namespace FranchiseProject.Infrastructures
            
             
             #endregion 
+            modelBuilder.Entity<Agency>().HasData(
+                     new Agency
+                     {
+                         Id = Guid.Parse("BE37023D-6A58-4B4B-92E5-39DCECE45473"),
+                         Status = AgencyStatusEnum.Partner
+                     }
+                     );
         }
     }
 }

@@ -96,12 +96,14 @@ namespace FranchiseProject.API
             services.AddTransient<IValidator<UpdateContractViewModel>, UpdateContracValidator>();
             services.AddTransient<IValidator<UserResetPasswordModel>, UserResetPasswordValidator>();
             services.AddTransient<IValidator<CreateSlotModel>, CreateSlotValidator>();
-            services.AddTransient<IValidator<CreateUserModel>,CreateUserValidator>();
-            services.AddTransient<IValidator<UpdateUserModel>, UpdateUserValidator>();
+            services.AddTransient<IValidator<CreateUserByAdminModel>,CreateUserValidator>();
+            services.AddTransient<IValidator<UpdateUserByAdminModel>, UpdateUserValidator>();
             services.AddTransient<IValidator<UpdatePasswordModel>, UpdatePasswordValidator>();
             services.AddTransient<IValidator<CreateClassScheduleViewModel>, CreateClassScheduleValidor>();
             services.AddTransient<IValidator<CreateClassScheduleDateRangeViewModel>, CreateClassScheduleDateRangeValidator>();
             services.AddTransient<IValidator<CreateTermViewModel>,CreateTermValidator>();
+            services.AddTransient<IValidator<UpdateUserByAgencyModel>, UpdateUserByAgencyValidator>();
+            services.AddTransient<IValidator<CreateUserByAgencyModel>, CreateUserByAgencyValidator>();
             #endregion
 
             return services;
