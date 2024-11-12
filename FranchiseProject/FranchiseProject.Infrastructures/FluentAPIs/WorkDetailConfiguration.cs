@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace FranchiseProject.Infrastructures.FluentAPIs
-{
+{/*
     public class WorkDetailConfiguration : IEntityTypeConfiguration<WorkDetail>
     {
         public void Configure(EntityTypeBuilder<WorkDetail> builder)
@@ -21,5 +21,5 @@ namespace FranchiseProject.Infrastructures.FluentAPIs
                 .WithMany(a => a.WorkDetails)
                 .HasForeignKey(a => a.WorkId);
         }
-    }
+    }*/
 }
