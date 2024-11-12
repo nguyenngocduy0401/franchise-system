@@ -17,8 +17,7 @@ namespace FranchiseProject.Domain.Entity
         public string? Report { get; set; }
         public string? ReportImageURL { get; set; }
         public WorkTypeEnum? Type { get; set; }
-        public Guid? AppointmentId { get; set; }
-
+        public virtual ICollection<Appointment>? Appointments { get; set; }
 
     }
 }
